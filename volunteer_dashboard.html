@@ -1,0 +1,1112 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Volunteer Dashboard - FoodShare</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    * { box-sizing: border-box; }
+    
+    :root {
+      --primary: #2ecc71;
+      --secondary: #f59e0b;
+      --surface: #ffffff;
+      --background: #f8fafc;
+      --text: #1f2937;
+      --muted: #6b7280;
+      --border: #e5e7eb;
+      --success: #10b981;
+      --warning: #f59e0b;
+      --error: #ef4444;
+      --info: #0ea5e9;
+    }
+    
+    body {
+      margin: 0;
+      font-family: 'Inter', sans-serif;
+      background: var(--background);
+      color: var(--text);
+    }
+    
+    /* Header */
+    .header {
+      background: var(--surface);
+      border-bottom: 1px solid var(--border);
+      padding: 1rem 0;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+    
+    .header-content {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 0 2rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    
+    .logo {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      font-weight: 800;
+      font-size: 1.2rem;
+      color: var(--primary);
+    }
+    
+    .logo-dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, var(--primary), var(--success));
+    }
+    
+    .user-menu {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+    }
+    
+    .availability-toggle {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.5rem 1rem;
+      border-radius: 20px;
+      font-size: 0.9rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+    
+    .availability-toggle.available {
+      background: #dcfce7;
+      color: #166534;
+    }
+    
+    .availability-toggle.unavailable {
+      background: #fef2f2;
+      color: #991b1b;
+    }
+    
+    .btn {
+      padding: 0.75rem 1.5rem;
+      border-radius: 8px;
+      border: none;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+    
+    .btn-primary {
+      background: var(--primary);
+      color: white;
+    }
+    
+    .btn-primary:hover {
+      background: #27ae60;
+      transform: translateY(-1px);
+    }
+    
+    .btn-success {
+      background: var(--success);
+      color: white;
+    }
+    
+    .btn-warning {
+      background: var(--warning);
+      color: white;
+    }
+    
+    .btn-outline {
+      background: transparent;
+      color: var(--primary);
+      border: 2px solid var(--primary);
+    }
+    
+    /* Main Layout */
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 2rem;
+    }
+    
+    .dashboard-grid {
+      display: grid;
+      grid-template-columns: 2fr 1fr;
+      gap: 2rem;
+      margin-bottom: 2rem;
+    }
+    
+    .card {
+      background: var(--surface);
+      border-radius: 12px;
+      padding: 2rem;
+      box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+      border: 1px solid var(--border);
+    }
+    
+    .card h3 {
+      margin: 0 0 1.5rem;
+      font-size: 1.25rem;
+      font-weight: 700;
+      color: var(--text);
+    }
+    
+    /* Notifications */
+    .notification-center {
+      position: fixed;
+      top: 80px;
+      right: 20px;
+      width: 350px;
+      z-index: 1000;
+    }
+    
+    .notification {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 1.5rem;
+      margin-bottom: 1rem;
+      box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+      animation: slideIn 0.3s ease;
+      border-left: 4px solid var(--warning);
+    }
+    
+    .notification.urgent {
+      border-left-color: var(--error);
+      animation: pulse 2s infinite;
+    }
+    
+    .notification h4 {
+      margin: 0 0 0.5rem;
+      font-weight: 600;
+      color: var(--text);
+    }
+    
+    .notification p {
+      margin: 0 0 1rem;
+      color: var(--muted);
+      font-size: 0.9rem;
+    }
+    
+    .notification-actions {
+      display: flex;
+      gap: 0.5rem;
+    }
+    
+    .btn-small {
+      padding: 0.5rem 1rem;
+      font-size: 0.8rem;
+      border-radius: 6px;
+    }
+    
+    @keyframes slideIn {
+      from { transform: translateX(100%); opacity: 0; }
+      to { transform: translateX(0); opacity: 1; }
+    }
+    
+    @keyframes pulse {
+      0%, 100% { box-shadow: 0 10px 25px rgba(0,0,0,0.1); }
+      50% { box-shadow: 0 10px 25px rgba(239,68,68,0.3); }
+    }
+    
+    /* Stats Cards */
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+      gap: 1rem;
+      margin-bottom: 2rem;
+    }
+    
+    .stat-card {
+      background: var(--surface);
+      padding: 1.5rem;
+      border-radius: 12px;
+      border: 1px solid var(--border);
+      text-align: center;
+    }
+    
+    .stat-number {
+      font-size: 2rem;
+      font-weight: 800;
+      color: var(--primary);
+      display: block;
+      margin-bottom: 0.5rem;
+    }
+    
+    .stat-label {
+      color: var(--muted);
+      font-size: 0.9rem;
+    }
+    
+    /* Available Deliveries */
+    .delivery-list {
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+    }
+    
+    .delivery-card {
+      background: var(--surface);
+      border: 2px solid var(--border);
+      border-radius: 12px;
+      padding: 1.5rem;
+      transition: all 0.2s ease;
+      cursor: pointer;
+    }
+    
+    .delivery-card:hover {
+      border-color: var(--primary);
+      box-shadow: 0 4px 12px rgba(46,204,113,0.1);
+    }
+    
+    .delivery-card.urgent {
+      border-color: var(--error);
+      background: #fef2f2;
+    }
+    
+    .delivery-header {
+      display: flex;
+      justify-content: between;
+      align-items: flex-start;
+      margin-bottom: 1rem;
+    }
+    
+    .delivery-info h4 {
+      margin: 0 0 0.5rem;
+      font-weight: 600;
+      color: var(--text);
+    }
+    
+    .delivery-info p {
+      margin: 0;
+      color: var(--muted);
+      font-size: 0.9rem;
+    }
+    
+    .delivery-distance {
+      background: var(--primary);
+      color: white;
+      padding: 0.25rem 0.75rem;
+      border-radius: 12px;
+      font-size: 0.8rem;
+      font-weight: 600;
+    }
+    
+    .delivery-details {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1rem;
+      margin: 1rem 0;
+    }
+    
+    .detail-item {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      font-size: 0.9rem;
+    }
+    
+    .detail-icon {
+      width: 16px;
+      height: 16px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    
+    /* Active Delivery Tracking */
+    .active-delivery {
+      background: linear-gradient(135deg, #f0fdf4, #e6fffa);
+      border: 2px solid var(--primary);
+      border-radius: 16px;
+      padding: 2rem;
+      margin-bottom: 2rem;
+    }
+    
+    .delivery-progress {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      margin-bottom: 1.5rem;
+    }
+    
+    .progress-step {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 0.5rem;
+      flex: 1;
+    }
+    
+    .step-circle {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 600;
+      font-size: 0.9rem;
+    }
+    
+    .step-circle.completed {
+      background: var(--success);
+      color: white;
+    }
+    
+    .step-circle.active {
+      background: var(--primary);
+      color: white;
+      animation: pulse 2s infinite;
+    }
+    
+    .step-circle.pending {
+      background: var(--border);
+      color: var(--muted);
+    }
+    
+    .step-label {
+      font-size: 0.8rem;
+      text-align: center;
+      color: var(--muted);
+    }
+    
+    .progress-line {
+      height: 2px;
+      background: var(--border);
+      flex: 1;
+      margin: 0 -0.5rem;
+    }
+    
+    .progress-line.completed {
+      background: var(--success);
+    }
+    
+    /* Map Integration */
+    .map-container {
+      height: 300px;
+      background: #f3f4f6;
+      border-radius: 12px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      color: var(--muted);
+      border: 2px dashed var(--border);
+      position: relative;
+    }
+    
+    .map-overlay {
+      position: absolute;
+      top: 1rem;
+      left: 1rem;
+      right: 1rem;
+      background: rgba(255,255,255,0.95);
+      padding: 1rem;
+      border-radius: 8px;
+      backdrop-filter: blur(10px);
+    }
+    
+    .route-info {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 0.5rem;
+    }
+    
+    .eta-info {
+      font-weight: 600;
+      color: var(--primary);
+    }
+    
+    /* Contact Panel */
+    .contact-panel {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 1.5rem;
+    }
+    
+    .contact-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 1rem 0;
+      border-bottom: 1px solid var(--border);
+    }
+    
+    .contact-item:last-child {
+      border-bottom: none;
+    }
+    
+    .contact-info h5 {
+      margin: 0 0 0.25rem;
+      font-weight: 600;
+    }
+    
+    .contact-info p {
+      margin: 0;
+      color: var(--muted);
+      font-size: 0.9rem;
+    }
+    
+    .contact-actions {
+      display: flex;
+      gap: 0.5rem;
+    }
+    
+    .btn-icon {
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      border: none;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+    
+    .btn-call {
+      background: var(--success);
+      color: white;
+    }
+    
+    .btn-message {
+      background: var(--info);
+      color: white;
+    }
+    
+    /* Responsive */
+    @media (max-width: 768px) {
+      .dashboard-grid {
+        grid-template-columns: 1fr;
+      }
+      
+      .container {
+        padding: 1rem;
+      }
+      
+      .header-content {
+        padding: 0 1rem;
+        flex-wrap: wrap;
+        gap: 1rem;
+      }
+      
+      .notification-center {
+        position: relative;
+        top: 0;
+        right: 0;
+        width: 100%;
+        margin-bottom: 2rem;
+      }
+      
+      .delivery-details {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+<body>
+  <!-- Header -->
+  <header class="header">
+    <div class="header-content">
+      <div class="logo">
+        <img src="./logo.png" alt="Logo" style="width: 40px; height:auto; display:block;">
+        <span>FoodShare Volunteer</span>
+      </div>
+      <div class="user-menu">
+        <div class="availability-toggle available" onclick="toggleAvailability()">
+          <span class="status-dot">●</span>
+          <span id="availabilityText">Available</span>
+        </div>
+        <span>Welcome, Alex Chen</span>
+        <button class="btn btn-outline">Logout</button>
+      </div>
+    </div>
+  </header>
+
+  <!-- Push Notifications -->
+  <div class="notification-center" id="notificationCenter">
+    <div class="notification urgent">
+      <h4>🚨 Urgent Food Pickup</h4>
+      <p><strong>Sunny Side Cafe</strong> - 25 meals ready for pickup<br>
+      📍 0.8 km away • Expires in 45 minutes</p>
+      <div class="notification-actions">
+        <button class="btn btn-success btn-small" onclick="acceptDelivery('urgent-1')">Accept</button>
+        <button class="btn btn-outline btn-small" onclick="dismissNotification(this)">Dismiss</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Main Content -->
+  <div class="container">
+    <!-- Stats Overview -->
+    <div class="stats-grid">
+      <div class="stat-card">
+        <span class="stat-number">34</span>
+        <div class="stat-label">Deliveries Made</div>
+      </div>
+      <div class="stat-card">
+        <span class="stat-number">680</span>
+        <div class="stat-label">Meals Delivered</div>
+      </div>
+      <div class="stat-card">
+        <span class="stat-number">127</span>
+        <div class="stat-label">Volunteer Hours</div>
+      </div>
+      <div class="stat-card">
+        <span class="stat-number">4.9</span>
+        <div class="stat-label">Rating</div>
+      </div>
+    </div>
+
+    <!-- Active Delivery Tracking -->
+    <div class="active-delivery" id="activeDelivery" style="display: none;">
+      <h3>🚚 Active Delivery in Progress</h3>
+      
+      <div class="delivery-progress">
+        <div class="progress-step">
+          <div class="step-circle completed">✓</div>
+          <div class="step-label">Accepted</div>
+        </div>
+        <div class="progress-line completed"></div>
+        <div class="progress-step">
+          <div class="step-circle active">📍</div>
+          <div class="step-label">En Route to Pickup</div>
+        </div>
+        <div class="progress-line"></div>
+        <div class="progress-step">
+          <div class="step-circle pending">📦</div>
+          <div class="step-label">Pickup Food</div>
+        </div>
+        <div class="progress-line"></div>
+        <div class="progress-step">
+          <div class="step-circle pending">🎯</div>
+          <div class="step-label">Deliver</div>
+        </div>
+      </div>
+
+      <div class="map-container">
+        <div class="map-overlay">
+          <div class="route-info">
+            <span><strong>To:</strong> Sunny Side Cafe</span>
+            <span class="eta-info">ETA: 8 min</span>
+          </div>
+          <div style="font-size: 0.9rem; color: var(--muted);">
+            📍 Current location: Park St & 2nd Ave<br>
+            🎯 Destination: Green Hope Foundation
+          </div>
+        </div>
+        <div style="margin-top: 2rem;">
+          🗺️ Integrated Map with Real-time Navigation<br>
+          <small>Turn-by-turn directions and optimal route</small>
+        </div>
+      </div>
+
+      <div class="contact-panel" style="margin-top: 1rem;">
+        <h4 style="margin: 0 0 1rem;">Contact Information</h4>
+        <div class="contact-item">
+          <div class="contact-info">
+            <h5>Sunny Side Cafe (Donor)</h5>
+            <p>Contact: Maria Garcia • Ready for pickup</p>
+          </div>
+          <div class="contact-actions">
+            <button class="btn-icon btn-call" onclick="callContact('donor')">📞</button>
+            <button class="btn-icon btn-message" onclick="messageContact('donor')">💬</button>
+          </div>
+        </div>
+        <div class="contact-item">
+          <div class="contact-info">
+            <h5>Green Hope Foundation (Recipient)</h5>
+            <p>Contact: John Smith • Expecting delivery</p>
+          </div>
+          <div class="contact-actions">
+            <button class="btn-icon btn-call" onclick="callContact('recipient')">📞</button>
+            <button class="btn-icon btn-message" onclick="messageContact('recipient')">💬</button>
+          </div>
+        </div>
+      </div>
+
+      <div style="display: flex; gap: 1rem; margin-top: 1.5rem;">
+        <button class="btn btn-success" onclick="updateDeliveryStatus('picked-up')">✅ Food Picked Up</button>
+        <button class="btn btn-warning" onclick="reportIssue()">⚠️ Report Issue</button>
+      </div>
+    </div>
+
+    <!-- Dashboard Grid -->
+    <div class="dashboard-grid">
+      <!-- Available Deliveries -->
+      <div class="card">
+        <h3>📦 Available Pickups Near You</h3>
+        <div class="delivery-list" id="availableDeliveries">
+          
+          <div class="delivery-card" onclick="viewDeliveryDetails('delivery-1')">
+            <div class="delivery-header">
+              <div class="delivery-info">
+                <h4>Green Leaf Restaurant</h4>
+                <p>15 prepared meals • Fresh produce</p>
+              </div>
+              <div class="delivery-distance">1.2 km</div>
+            </div>
+            <div class="delivery-details">
+              <div class="detail-item">
+                <span class="detail-icon">⏰</span>
+                <span>Pickup by 3:00 PM</span>
+              </div>
+              <div class="detail-item">
+                <span class="detail-icon">🎯</span>
+                <span>Community Center</span>
+              </div>
+              <div class="detail-item">
+                <span class="detail-icon">📍</span>
+                <span>Downtown Area</span>
+              </div>
+              <div class="detail-item">
+                <span class="detail-icon">⭐</span>
+                <span>Regular donor</span>
+              </div>
+            </div>
+            <div style="display: flex; gap: 0.5rem; margin-top: 1rem;">
+              <button class="btn btn-primary btn-small" onclick="acceptDelivery('delivery-1')">Accept Delivery</button>
+              <button class="btn btn-outline btn-small" onclick="viewRoute('delivery-1')">View Route</button>
+            </div>
+          </div>
+
+          <div class="delivery-card urgent" onclick="viewDeliveryDetails('delivery-2')">
+            <div class="delivery-header">
+              <div class="delivery-info">
+                <h4>Corner Bakery</h4>
+                <p>40 pastries • 10 sandwiches</p>
+                <p style="color: var(--error); font-weight: 600;">⚡ Expires in 2 hours</p>
+              </div>
+              <div class="delivery-distance">2.1 km</div>
+            </div>
+            <div class="delivery-details">
+              <div class="detail-item">
+                <span class="detail-icon">⏰</span>
+                <span>Pickup by 5:30 PM</span>
+              </div>
+              <div class="detail-item">
+                <span class="detail-icon">🎯</span>
+                <span>Homeless Shelter</span>
+              </div>
+              <div class="detail-item">
+                <span class="detail-icon">📍</span>
+                <span>West Side</span>
+              </div>
+              <div class="detail-item">
+                <span class="detail-icon">🚨</span>
+                <span>High Priority</span>
+              </div>
+            </div>
+            <div style="display: flex; gap: 0.5rem; margin-top: 1rem;">
+              <button class="btn btn-primary btn-small" onclick="acceptDelivery('delivery-2')">Accept Delivery</button>
+              <button class="btn btn-outline btn-small" onclick="viewRoute('delivery-2')">View Route</button>
+            </div>
+          </div>
+
+          <div class="delivery-card" onclick="viewDeliveryDetails('delivery-3')">
+            <div class="delivery-header">
+              <div class="delivery-info">
+                <h4>Family Kitchen</h4>
+                <p>20 home-cooked meals</p>
+              </div>
+              <div class="delivery-distance">0.5 km</div>
+            </div>
+            <div class="delivery-details">
+              <div class="detail-item">
+                <span class="detail-icon">⏰</span>
+                <span>Pickup by 7:00 PM</span>
+              </div>
+              <div class="detail-item">
+                <span class="detail-icon">🎯</span>
+                <span>Senior Center</span>
+              </div>
+              <div class="detail-item">
+                <span class="detail-icon">📍</span>
+                <span>Your neighborhood</span>
+              </div>
+              <div class="detail-item">
+                <span class="detail-icon">❤️</span>
+                <span>New donor</span>
+              </div>
+            </div>
+            <div style="display: flex; gap: 0.5rem; margin-top: 1rem;">
+              <button class="btn btn-primary btn-small" onclick="acceptDelivery('delivery-3')">Accept Delivery</button>
+              <button class="btn btn-outline btn-small" onclick="viewRoute('delivery-3')">View Route</button>
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+      <!-- Right Sidebar -->
+      <div style="display: flex; flex-direction: column; gap: 2rem;">
+        
+        <!-- Current Route Optimization -->
+        <div class="card">
+          <h3>🗺️ Route Optimization</h3>
+          <p style="color: var(--muted); margin-bottom: 1rem;">
+            Smart routing based on your current location and delivery destinations.
+          </p>
+          
+          <div style="background: var(--background); padding: 1rem; border-radius: 8px; margin-bottom: 1rem;">
+            <h5 style="margin: 0 0 0.5rem;">Optimal Route Suggestion</h5>
+            <div style="font-size: 0.9rem; color: var(--muted);">
+              1. Green Leaf Restaurant (1.2 km)<br>
+              2. Community Center (0.8 km)<br>
+              3. Corner Bakery (1.5 km)<br>
+              4. Homeless Shelter (0.9 km)
+            </div>
+            <div style="margin-top: 0.5rem; font-weight: 600; color: var(--primary);">
+              Total: 4.4 km • Est. time: 25 mins
+            </div>
+          </div>
+          
+          <button class="btn btn-primary" style="width: 100%;" onclick="startOptimalRoute()">
+            Start Optimal Route
+          </button>
+        </div>
+
+        <!-- Recent Activity -->
+        <div class="card">
+          <h3>📊 Recent Activity</h3>
+          <div style="display: flex; flex-direction: column; gap: 1rem;">
+            
+            <div style="padding: 1rem; background: var(--background); border-radius: 8px;">
+              <h5 style="margin: 0 0 0.25rem; color: var(--success);">✅ Delivery Completed</h5>
+              <p style="margin: 0; font-size: 0.9rem; color: var(--muted);">
+                Pizza Palace → Food Bank<br>
+                30 meals delivered • 2 hours ago
+              </p>
+            </div>
+            
+            <div style="padding: 1rem; background: var(--background); border-radius: 8px;">
+              <h5 style="margin: 0 0 0.25rem; color: var(--success);">✅ Delivery Completed</h5>
+              <p style="margin: 0; font-size: 0.9rem; color: var(--muted);">
+                Fresh Market → Senior Center<br>
+                12kg produce • Yesterday
+              </p>
+            </div>
+            
+            <div style="padding: 1rem; background: var(--background); border-radius: 8px;">
+              <h5 style="margin: 0 0 0.25rem; color: var(--warning);">⏰ Scheduled</h5>
+              <p style="margin: 0; font-size: 0.9rem; color: var(--muted);">
+                Cafe Corner → Youth Center<br>
+                Tomorrow at 2:00 PM
+              </p>
+            </div>
+            
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <script>
+    let isAvailable = true;
+    let activeDeliveryId = null;
+
+    // Toggle volunteer availability
+    function toggleAvailability() {
+      isAvailable = !isAvailable;
+      const toggle = document.querySelector('.availability-toggle');
+      const text = document.getElementById('availabilityText');
+      
+      if (isAvailable) {
+        toggle.className = 'availability-toggle available';
+        text.textContent = 'Available';
+        // Start receiving notifications
+        simulateNotifications();
+      } else {
+        toggle.className = 'availability-toggle unavailable';
+        text.textContent = 'Unavailable';
+        // Stop notifications
+        clearNotifications();
+      }
+    }
+
+    // Accept delivery
+    function acceptDelivery(deliveryId) {
+      activeDeliveryId = deliveryId;
+      
+      // Show active delivery section
+      document.getElementById('activeDelivery').style.display = 'block';
+      
+      // Remove from available deliveries
+      const deliveryCard = document.querySelector(`[onclick*="${deliveryId}"]`);
+      if (deliveryCard && deliveryCard.classList.contains('delivery-card')) {
+        deliveryCard.remove();
+      }
+      
+      // Clear notifications for this delivery
+      clearNotifications();
+      
+      // Start real-time tracking
+      startDeliveryTracking();
+      
+      alert('Delivery accepted! Navigation has started.');
+    }
+
+    // Dismiss notification
+    function dismissNotification(button) {
+      button.closest('.notification').remove();
+    }
+
+    // Clear all notifications
+    function clearNotifications() {
+      document.getElementById('notificationCenter').innerHTML = '';
+    }
+
+    // Simulate push notifications
+    function simulateNotifications() {
+      if (!isAvailable) return;
+      
+      setTimeout(() => {
+        if (!isAvailable || activeDeliveryId) return;
+        
+        const notifications = [
+          {
+            title: '🍕 New Pickup Available',
+            content: '<strong>Mario\'s Pizza</strong> - 18 pizzas ready<br>📍 1.5 km away • Pickup by 6:00 PM',
+            urgent: false
+          },
+          {
+            title: '🥗 Fresh Produce Available', 
+            content: '<strong>Green Grocery</strong> - 8kg vegetables<br>📍 0.7 km away • Perfect for your route',
+            urgent: false
+          }
+        ];
+        
+        const notification = notifications[Math.floor(Math.random() * notifications.length)];
+        addNotification(notification.title, notification.content, notification.urgent);
+        
+        // Schedule next notification
+        simulateNotifications();
+      }, Math.random() * 30000 + 15000); // Random interval 15-45 seconds
+    }
+
+    // Add notification to UI
+    function addNotification(title, content, urgent = false) {
+      const notificationCenter = document.getElementById('notificationCenter');
+      const notificationId = 'notif-' + Date.now();
+      
+      const notification = document.createElement('div');
+      notification.className = `notification ${urgent ? 'urgent' : ''}`;
+      notification.innerHTML = `
+        <h4>${title}</h4>
+        <p>${content}</p>
+        <div class="notification-actions">
+          <button class="btn btn-success btn-small" onclick="acceptDelivery('${notificationId}')">Accept</button>
+          <button class="btn btn-outline btn-small" onclick="dismissNotification(this)">Dismiss</button>
+        </div>
+      `;
+      
+      notificationCenter.appendChild(notification);
+      
+      // Auto-dismiss after 30 seconds if not urgent
+      if (!urgent) {
+        setTimeout(() => {
+          if (notification.parentNode) {
+            notification.remove();
+          }
+        }, 30000);
+      }
+      
+      // Play notification sound (placeholder)
+      console.log('🔊 Push notification received');
+    }
+
+    // Start delivery tracking
+    function startDeliveryTracking() {
+      console.log('📍 Starting real-time GPS tracking');
+      console.log('🗺️ Calculating optimal route');
+      console.log('📱 Enabling communication with donor and recipient');
+      
+      // Simulate route updates every 10 seconds
+      let routeUpdateInterval = setInterval(() => {
+        if (!activeDeliveryId) {
+          clearInterval(routeUpdateInterval);
+          return;
+        }
+        updateRouteProgress();
+      }, 10000);
+    }
+
+    // Update delivery status
+    function updateDeliveryStatus(status) {
+      const progressSteps = document.querySelectorAll('.progress-step');
+      const progressLines = document.querySelectorAll('.progress-line');
+      
+      if (status === 'picked-up') {
+        // Update to "picked up" stage
+        progressSteps[1].querySelector('.step-circle').className = 'step-circle completed';
+        progressSteps[1].querySelector('.step-circle').innerHTML = '✓';
+        
+        progressSteps[2].querySelector('.step-circle').className = 'step-circle completed';
+        progressSteps[2].querySelector('.step-circle').innerHTML = '✓';
+        
+        progressSteps[3].querySelector('.step-circle').className = 'step-circle active';
+        progressSteps[3].querySelector('.step-circle').innerHTML = '🚚';
+        
+        progressLines[1].className = 'progress-line completed';
+        
+        // Update map overlay
+        document.querySelector('.map-overlay .route-info').innerHTML = `
+          <span><strong>To:</strong> Green Hope Foundation</span>
+          <span class="eta-info">ETA: 12 min</span>
+        `;
+        
+        alert('Food picked up successfully! Navigating to delivery location.');
+      } else if (status === 'delivered') {
+        // Complete delivery
+        progressSteps.forEach(step => {
+          step.querySelector('.step-circle').className = 'step-circle completed';
+          step.querySelector('.step-circle').innerHTML = '✓';
+        });
+        
+        progressLines.forEach(line => {
+          line.className = 'progress-line completed';
+        });
+        
+        setTimeout(() => {
+          document.getElementById('activeDelivery').style.display = 'none';
+          activeDeliveryId = null;
+          alert('Delivery completed! Thank you for making a difference.');
+        }, 2000);
+      }
+    }
+
+    // Update route progress
+    function updateRouteProgress() {
+      // Simulate GPS updates
+      const locations = [
+        'Main St & 1st Ave',
+        'Oak Avenue',
+        'Downtown Plaza',
+        'Community Center Drive'
+      ];
+      
+      const currentLocation = locations[Math.floor(Math.random() * locations.length)];
+      const eta = Math.floor(Math.random() * 10) + 5; // 5-15 minutes
+      
+      const locationElement = document.querySelector('.map-overlay div');
+      if (locationElement) {
+        locationElement.innerHTML = `
+          📍 Current location: ${currentLocation}<br>
+          🎯 Destination: ${activeDeliveryId ? 'Green Hope Foundation' : 'Sunny Side Cafe'}
+        `;
+      }
+      
+      const etaElement = document.querySelector('.eta-info');
+      if (etaElement) {
+        etaElement.textContent = `ETA: ${eta} min`;
+      }
+    }
+
+    // Contact functions
+    function callContact(type) {
+      const contactType = type === 'donor' ? 'Donor (Sunny Side Cafe)' : 'Recipient (Green Hope Foundation)';
+      alert(`📞 Calling ${contactType}...`);
+      // In real app: window.location.href = 'tel:+1234567890';
+    }
+
+    function messageContact(type) {
+      const contactType = type === 'donor' ? 'Donor' : 'Recipient';
+      alert(`💬 Opening message to ${contactType}...`);
+      // In real app: Open messaging interface
+    }
+
+    // Report issue
+    function reportIssue() {
+      const issues = [
+        'Donor not available',
+        'Food quality concern',
+        'Address incorrect',
+        'Vehicle breakdown',
+        'Other'
+      ];
+      
+      const issue = prompt('Select issue type:\n' + issues.map((item, i) => `${i+1}. ${item}`).join('\n'));
+      
+      if (issue) {
+        alert('Issue reported. Our support team will contact you shortly.');
+      }
+    }
+
+    // View delivery details
+    function viewDeliveryDetails(deliveryId) {
+      alert(`📋 Viewing details for delivery ${deliveryId}\n\nThis would open a detailed view with:\n• Complete food inventory\n• Special handling instructions\n• Donor/recipient photos\n• Previous delivery history\n• Community impact stats`);
+    }
+
+    // View route
+    function viewRoute(deliveryId) {
+      alert(`🗺️ Opening route preview for delivery ${deliveryId}\n\nShowing:\n• Turn-by-turn directions\n• Traffic conditions\n• Alternative routes\n• Estimated fuel cost\n• Parking information`);
+    }
+
+    // Start optimal route
+    function startOptimalRoute() {
+      if (activeDeliveryId) {
+        alert('❌ Please complete your current delivery first.');
+        return;
+      }
+      
+      alert('🚀 Starting optimal route!\n\n📍 Navigation activated for multiple stops\n⏱️ Estimated completion: 25 minutes\n💰 Estimated impact: 65 meals delivered');
+      
+      // In real app, this would:
+      // 1. Accept multiple deliveries in optimal order
+      // 2. Start GPS navigation with multiple waypoints
+      // 3. Send notifications to all relevant donors/recipients
+      // 4. Begin real-time tracking for entire route
+    }
+
+    // Initialize dashboard
+    function initializeDashboard() {
+      // Check if user has active deliveries on page load
+      // Load user preferences and saved routes
+      // Initialize geolocation tracking
+      // Connect to real-time notification system
+      
+      console.log('🚀 Volunteer dashboard initialized');
+      console.log('📍 GPS tracking enabled');
+      console.log('🔔 Push notifications activated');
+      
+      // Start simulating notifications if available
+      if (isAvailable) {
+        setTimeout(simulateNotifications, 5000);
+      }
+    }
+
+    // Page load initialization
+    window.addEventListener('load', initializeDashboard);
+
+    // Handle page visibility changes (for battery optimization)
+    document.addEventListener('visibilitychange', function() {
+      if (document.hidden) {
+        console.log('📱 App backgrounded - reducing GPS frequency');
+      } else {
+        console.log('📱 App foregrounded - resuming normal tracking');
+      }
+    });
+
+    // Simulate completing active delivery after demo
+    setTimeout(() => {
+      if (activeDeliveryId) {
+        updateDeliveryStatus('delivered');
+      }
+    }, 60000); // Auto-complete after 1 minute for demo
+  </script>
+</body>
+</html>
+        

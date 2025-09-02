@@ -1,0 +1,527 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>NGO Dashboard - FoodShare</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    * { box-sizing: border-box; }
+    
+    :root {
+      --primary: #2ecc71;
+      --secondary: #f59e0b;
+      --surface: #ffffff;
+      --background: #f8fafc;
+      --text: #1f2937;
+      --muted: #6b7280;
+      --border: #e5e7eb;
+      --success: #10b981;
+      --warning: #f59e0b;
+      --error: #ef4444;
+    }
+    
+    body {
+      margin: 0;
+      font-family: 'Inter', sans-serif;
+      background: var(--background);
+      color: var(--text);
+    }
+    
+    /* Header */
+    .header {
+      background: var(--surface);
+      border-bottom: 1px solid var(--border);
+      padding: 1rem 0;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+    
+    .header-content {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 0 2rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    
+    .logo {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      font-weight: 800;
+      font-size: 1.2rem;
+      color: var(--primary);
+    }
+    
+    .logo-dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, var(--primary), var(--success));
+    }
+    
+    .user-menu {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+    }
+    
+    .btn {
+      padding: 0.75rem 1.5rem;
+      border-radius: 8px;
+      border: none;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+    
+    .btn-primary {
+      background: var(--primary);
+      color: white;
+    }
+    
+    .btn-primary:hover {
+      background: #27ae60;
+      transform: translateY(-1px);
+    }
+    
+    .btn-secondary {
+      background: var(--secondary);
+      color: white;
+    }
+    
+    .btn-outline {
+      background: transparent;
+      color: var(--primary);
+      border: 2px solid var(--primary);
+    }
+    
+    /* Main Layout */
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 2rem;
+    }
+    
+    .dashboard-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 2rem;
+      margin-bottom: 2rem;
+    }
+    
+    .card {
+      background: var(--surface);
+      border-radius: 12px;
+      padding: 2rem;
+      box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+      border: 1px solid var(--border);
+    }
+    
+    .card h3 {
+      margin: 0 0 1.5rem;
+      font-size: 1.25rem;
+      font-weight: 700;
+      color: var(--text);
+    }
+    
+    /* Food Request Form */
+    .form-group {
+      margin-bottom: 1.5rem;
+    }
+    
+    .form-group label {
+      display: block;
+      margin-bottom: 0.5rem;
+      font-weight: 600;
+      color: var(--text);
+    }
+    
+    .form-control {
+      width: 100%;
+      padding: 0.75rem;
+      border: 2px solid var(--border);
+      border-radius: 8px;
+      font: inherit;
+      transition: border-color 0.2s ease;
+    }
+    
+    .form-control:focus {
+      outline: none;
+      border-color: var(--primary);
+    }
+    
+    select.form-control {
+      cursor: pointer;
+    }
+    
+    /* Stats Cards */
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 1rem;
+      margin-bottom: 2rem;
+    }
+    
+    .stat-card {
+      background: var(--surface);
+      padding: 1.5rem;
+      border-radius: 12px;
+      border: 1px solid var(--border);
+      text-align: center;
+    }
+    
+    .stat-number {
+      font-size: 2rem;
+      font-weight: 800;
+      color: var(--primary);
+      display: block;
+      margin-bottom: 0.5rem;
+    }
+    
+    .stat-label {
+      color: var(--muted);
+      font-size: 0.9rem;
+    }
+    
+    /* Request History */
+    .requests-list {
+      background: var(--surface);
+      border-radius: 12px;
+      border: 1px solid var(--border);
+      overflow: hidden;
+    }
+    
+    .request-item {
+      padding: 1.5rem;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    
+    .request-item:last-child {
+      border-bottom: none;
+    }
+    
+    .request-info h4 {
+      margin: 0 0 0.5rem;
+      font-weight: 600;
+      color: var(--text);
+    }
+    
+    .request-info p {
+      margin: 0;
+      color: var(--muted);
+      font-size: 0.9rem;
+    }
+    
+    .status-badge {
+      padding: 0.5rem 1rem;
+      border-radius: 20px;
+      font-size: 0.8rem;
+      font-weight: 600;
+      text-transform: uppercase;
+    }
+    
+    .status-pending {
+      background: #fef3c7;
+      color: #92400e;
+    }
+    
+    .status-matched {
+      background: #dcfce7;
+      color: #166534;
+    }
+    
+    .status-completed {
+      background: #dbeafe;
+      color: #1e40af;
+    }
+    
+    /* Map placeholder */
+    .map-container {
+      height: 300px;
+      background: #f3f4f6;
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--muted);
+      border: 2px dashed var(--border);
+    }
+    
+    /* Success message */
+    .success-message {
+      background: #dcfce7;
+      color: #166534;
+      padding: 1rem;
+      border-radius: 8px;
+      margin-top: 1rem;
+      display: none;
+    }
+    
+    /* Responsive */
+    @media (max-width: 768px) {
+      .dashboard-grid {
+        grid-template-columns: 1fr;
+      }
+      
+      .container {
+        padding: 1rem;
+      }
+      
+      .header-content {
+        padding: 0 1rem;
+      }
+      
+      .request-item {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 1rem;
+      }
+    }
+  </style>
+</head>
+<body>
+  <!-- Header -->
+  <header class="header">
+    <div class="header-content">
+      <div class="logo">
+        <img src="./logo.png" alt="Logo" style="width: 40px; height:auto; display:block;">
+        <span>FoodShare NGO</span>
+      </div>
+      <div class="user-menu">
+        <span>Welcome, Green Hope Foundation</span>
+        <button class="btn btn-outline">Logout</button>
+      </div>
+    </div>
+  </header>
+
+  <!-- Main Content -->
+  <div class="container">
+    <!-- Stats Overview -->
+    <div class="stats-grid">
+      <div class="stat-card">
+        <span class="stat-number">24</span>
+        <div class="stat-label">Total Requests</div>
+      </div>
+      <div class="stat-card">
+        <span class="stat-number">18</span>
+        <div class="stat-label">Fulfilled</div>
+      </div>
+      <div class="stat-card">
+        <span class="stat-number">6</span>
+        <div class="stat-label">Pending</div>
+      </div>
+      <div class="stat-card">
+        <span class="stat-number">450</span>
+        <div class="stat-label">Meals Received</div>
+      </div>
+    </div>
+
+    <!-- Dashboard Grid -->
+    <div class="dashboard-grid">
+      <!-- Food Request Form -->
+      <div class="card">
+        <h3>Request Food Donation</h3>
+        <form id="foodRequestForm">
+          <div class="form-group">
+            <label for="foodType">Type of Food Needed</label>
+            <select class="form-control" id="foodType" name="foodType" required>
+              <option value="">Select food type</option>
+              <option value="prepared-meals">Prepared Meals</option>
+              <option value="fresh-produce">Fresh Produce</option>
+              <option value="packaged-food">Packaged Food</option>
+              <option value="baked-goods">Baked Goods</option>
+              <option value="any">Any Available</option>
+            </select>
+          </div>
+          
+          <div class="form-group">
+            <label for="quantity">Quantity Needed</label>
+            <input type="text" class="form-control" id="quantity" name="quantity" 
+                   placeholder="e.g., 50 meals, 10kg" required>
+          </div>
+          
+          <div class="form-group">
+            <label for="urgency">Urgency Level</label>
+            <select class="form-control" id="urgency" name="urgency" required>
+              <option value="">Select urgency</option>
+              <option value="low">Low - Within 3 days</option>
+              <option value="medium">Medium - Within 24 hours</option>
+              <option value="high">High - Today</option>
+              <option value="emergency">Emergency - ASAP</option>
+            </select>
+          </div>
+          
+          <div class="form-group">
+            <label for="beneficiaries">Number of Beneficiaries</label>
+            <input type="number" class="form-control" id="beneficiaries" name="beneficiaries" 
+                   placeholder="e.g., 50" required>
+          </div>
+          
+          <div class="form-group">
+            <label for="notes">Additional Notes</label>
+            <textarea class="form-control" id="notes" name="notes" rows="3" 
+                      placeholder="Any special requirements or information..."></textarea>
+          </div>
+          
+          <button type="submit" class="btn btn-primary" style="width: 100%;">
+            Submit Food Request
+          </button>
+          
+          <div class="success-message" id="successMessage">
+            Food request submitted successfully! We'll notify donors in your area.
+          </div>
+        </form>
+      </div>
+
+      <!-- Location & Contact -->
+      <div class="card">
+        <h3>Delivery Location</h3>
+        <div class="form-group">
+          <label for="deliveryAddress">Delivery Address</label>
+          <textarea class="form-control" id="deliveryAddress" name="deliveryAddress" rows="3" 
+                    placeholder="Enter complete address where food should be delivered">Green Hope Foundation
+123 Community Center Road
+Downtown, City 12345</textarea>
+        </div>
+        
+        <div class="form-group">
+          <label for="contactPerson">Contact Person</label>
+          <input type="text" class="form-control" id="contactPerson" name="contactPerson" 
+                 value="John Smith" placeholder="Contact person name">
+        </div>
+        
+        <div class="form-group">
+          <label for="contactPhone">Contact Phone</label>
+          <input type="tel" class="form-control" id="contactPhone" name="contactPhone" 
+                 value="+91 12345 67890" placeholder="Phone number">
+        </div>
+        
+        <div class="form-group">
+          <label for="availableHours">Available Hours</label>
+          <input type="text" class="form-control" id="availableHours" name="availableHours" 
+                 value="9:00 AM - 6:00 PM" placeholder="e.g., 9:00 AM - 6:00 PM">
+        </div>
+        
+        <div class="map-container">
+          <div>📍 Map Integration - Shows delivery location</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Recent Requests -->
+    <div class="card">
+      <h3>Recent Food Requests</h3>
+      <div class="requests-list">
+        <div class="request-item">
+          <div class="request-info">
+            <h4>Prepared Meals - 30 servings</h4>
+            <p>Requested: 2 hours ago • For homeless shelter program</p>
+          </div>
+          <span class="status-badge status-matched">Matched</span>
+        </div>
+        
+        <div class="request-item">
+          <div class="request-info">
+            <h4>Fresh Vegetables - 15kg</h4>
+            <p>Requested: 1 day ago • For community kitchen</p>
+          </div>
+          <span class="status-badge status-pending">Pending</span>
+        </div>
+        
+        <div class="request-item">
+          <div class="request-info">
+            <h4>Packaged Food Items</h4>
+            <p>Requested: 3 days ago • For food pantry distribution</p>
+          </div>
+          <span class="status-badge status-completed">Completed</span>
+        </div>
+        
+        <div class="request-item">
+          <div class="request-info">
+            <h4>Baked Goods - 50 items</h4>
+            <p>Requested: 1 week ago • For children's program</p>
+          </div>
+          <span class="status-badge status-completed">Completed</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // Form submission
+    document.getElementById('foodRequestForm').addEventListener('submit', function(e) {
+      e.preventDefault();
+      
+      // Get form data
+      const formData = new FormData(e.target);
+      const requestData = {
+        foodType: formData.get('foodType'),
+        quantity: formData.get('quantity'),
+        urgency: formData.get('urgency'),
+        beneficiaries: formData.get('beneficiaries'),
+        notes: formData.get('notes'),
+        deliveryAddress: document.getElementById('deliveryAddress').value,
+        contactPerson: document.getElementById('contactPerson').value,
+        contactPhone: document.getElementById('contactPhone').value,
+        availableHours: document.getElementById('availableHours').value,
+        timestamp: new Date().toISOString()
+      };
+      
+      // Here you would send to your backend API
+      console.log('Food request submitted:', requestData);
+      
+      // Show success message
+      document.getElementById('successMessage').style.display = 'block';
+      
+      // Reset form
+      e.target.reset();
+      
+      // Hide success message after 5 seconds
+      setTimeout(() => {
+        document.getElementById('successMessage').style.display = 'none';
+      }, 5000);
+      
+      // In a real app, this would:
+      // 1. Send request to backend
+      // 2. Notify nearby donors
+      // 3. Update the requests list
+      // 4. Send push notifications to volunteers
+    });
+
+    // Auto-save location and contact info
+    const contactFields = ['deliveryAddress', 'contactPerson', 'contactPhone', 'availableHours'];
+    contactFields.forEach(fieldId => {
+      const field = document.getElementById(fieldId);
+      field.addEventListener('change', function() {
+        localStorage.setItem(`ngo_${fieldId}`, this.value);
+      });
+      
+      // Load saved data
+      const saved = localStorage.getItem(`ngo_${fieldId}`);
+      if (saved && !field.value) {
+        field.value = saved;
+      }
+    });
+
+    // Real-time updates (simulate)
+    function updateStats() {
+      // In a real app, this would fetch from your API
+      // For demo, we'll simulate some updates
+    }
+
+    // Update stats every 30 seconds
+    setInterval(updateStats, 30000);
+  </script>
+</body>
+</html>

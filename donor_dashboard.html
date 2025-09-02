@@ -1,0 +1,324 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Donor Dashboard - FoodShare</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    * { box-sizing: border-box; }
+
+    :root {
+      --primary: #2ecc71;
+      --secondary: #f59e0b;
+      --accent: #0ea5e9;
+      --surface: #ffffff;
+      --background: #f9fafb;
+      --text: #1f2937;
+      --muted: #6b7280;
+      --border: #e5e7eb;
+      --warning: #f59e0b;
+      --error: #ef4444;
+    }
+
+    body {
+      margin: 0;
+      font-family: 'Inter', sans-serif;
+      background: var(--background);
+      color: var(--text);
+    }
+
+    /* Header */
+    .header {
+      background: var(--surface);
+      border-bottom: 1px solid var(--border);
+      padding: 1rem 0;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+
+    .header-content {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 0 2rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .logo {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      font-weight: 800;
+      font-size: 1.2rem;
+      color: var(--primary);
+    }
+
+    .logo-dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, var(--primary), #27ae60);
+    }
+
+    .user-menu {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+    }
+
+    .btn {
+      padding: 0.75rem 1.5rem;
+      border-radius: 8px;
+      border: none;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .btn-primary {
+      background: var(--primary);
+      color: white;
+    }
+
+    .btn-primary:hover {
+      background: #27ae60;
+      transform: translateY(-1px);
+    }
+
+    .btn-outline {
+      background: transparent;
+      color: var(--primary);
+      border: 2px solid var(--primary);
+    }
+
+    /* Container */
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 2rem;
+    }
+
+    /* Quick Action */
+    .quick-action {
+      background: linear-gradient(135deg, var(--primary), #27ae60);
+      color: white;
+      padding: 2rem;
+      border-radius: 16px;
+      text-align: center;
+      margin-bottom: 2rem;
+      cursor: pointer;
+      transition: transform 0.2s ease;
+    }
+
+    .quick-action:hover {
+      transform: translateY(-2px);
+    }
+
+    /* Stats */
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 1rem;
+      margin-bottom: 2rem;
+    }
+
+    .stat-card {
+      background: var(--surface);
+      padding: 1.5rem;
+      border-radius: 12px;
+      border: 1px solid var(--border);
+      text-align: center;
+    }
+
+    .stat-number {
+      font-size: 2rem;
+      font-weight: 800;
+      color: var(--primary);
+    }
+
+    .stat-label {
+      color: var(--muted);
+      font-size: 0.9rem;
+    }
+
+    /* Saved Locations */
+    .card {
+      background: var(--surface);
+      border-radius: 12px;
+      padding: 1.5rem;
+      margin-bottom: 2rem;
+      border: 1px solid var(--border);
+    }
+
+    .card h3 {
+      margin-bottom: 1rem;
+    }
+
+    .saved-locations .location-item {
+      padding: 1rem;
+      border: 2px solid transparent;
+      border-radius: 8px;
+      background: var(--background);
+      margin-bottom: 0.5rem;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .saved-locations .location-item:hover {
+      border-color: var(--primary);
+    }
+
+    /* Donation History */
+    .donations-list .donation-item {
+      display: flex;
+      justify-content: space-between;
+      padding: 1rem 0;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .status-badge {
+      padding: 0.4rem 0.8rem;
+      border-radius: 20px;
+      font-size: 0.8rem;
+      font-weight: 600;
+    }
+
+    .status-available { background: #d1fae5; color: #065f46; }
+    .status-picked { background: #fef3c7; color: #92400e; }
+    .status-delivered { background: #dbeafe; color: #1e40af; }
+
+    /* Modal */
+    .modal {
+      display: none;
+      position: fixed;
+      top: 0; left: 0;
+      width: 100%; height: 100%;
+      background: rgba(0,0,0,0.6);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .modal-content {
+      background: var(--surface);
+      padding: 2rem;
+      border-radius: 12px;
+      width: 90%;
+      max-width: 500px;
+    }
+
+    .form-group label { display: block; margin-bottom: 0.5rem; font-weight: 600; }
+    .form-control { width: 100%; padding: 0.75rem; margin-bottom: 1rem; border-radius: 8px; border: 2px solid var(--border); }
+
+    .close-modal {
+      float: right;
+      font-size: 1.5rem;
+      cursor: pointer;
+      color: var(--muted);
+    }
+
+    @media (max-width: 768px) {
+      .stats-grid { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <!-- Header -->
+  <header class="header">
+    <div class="header-content">
+      <div class="logo"><img src="./logo.png" alt="Logo" style="width: 40px; height:auto; display:block;"> FoodShare Donor</div>
+      <div class="user-menu">
+        <span>Welcome, Donor</span>
+        <button class="btn btn-outline">Logout</button>
+      </div>
+    </div>
+  </header>
+
+  <!-- Main -->
+  <div class="container">
+    <div class="quick-action" onclick="openModal()">
+      <h2>🍽️ Have Surplus Food?</h2>
+      <p>Click to notify volunteers and help those in need</p>
+    </div>
+
+    <!-- Stats -->
+    <div class="stats-grid">
+      <div class="stat-card"><span class="stat-number">47</span><div class="stat-label">Total Donations</div></div>
+      <div class="stat-card"><span class="stat-number">12</span><div class="stat-label">This Month</div></div>
+      <div class="stat-card"><span class="stat-number">850</span><div class="stat-label">Meals Shared</div></div>
+    </div>
+
+    <!-- Saved Locations -->
+    <div class="card">
+      <h3>Saved Locations</h3>
+      <div class="saved-locations">
+        <div class="location-item">Pasta Palace, Main Street</div>
+        <div class="location-item">Downtown Kitchen, Park Avenue</div>
+      </div>
+    </div>
+
+    <!-- Donation History -->
+    <div class="card">
+      <h3>Donation History</h3>
+      <div class="donations-list">
+        <div class="donation-item">
+          <div>
+            <h4>10kg Cooked Rice</h4>
+            <p>Location: Main Street</p>
+          </div>
+          <span class="status-badge status-delivered">Delivered</span>
+        </div>
+        <div class="donation-item">
+          <div>
+            <h4>5kg Bread</h4>
+            <p>Location: Park Avenue</p>
+          </div>
+          <span class="status-badge status-picked">Picked Up</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal -->
+  <div id="donationModal" class="modal">
+    <div class="modal-content">
+      <span class="close-modal" onclick="closeModal()">&times;</span>
+      <h3>Create Donation</h3>
+      <div class="form-group">
+        <label>Food Type</label>
+        <input type="text" class="form-control" placeholder="E.g., Cooked Meals">
+      </div>
+      <div class="form-group">
+        <label>Quantity (kg)</label>
+        <input type="number" class="form-control" placeholder="Enter quantity">
+      </div>
+      <div class="form-group">
+        <label>Pickup Location</label>
+        <input type="text" class="form-control" placeholder="Enter location">
+      </div>
+      <div class="form-group">
+        <label>Pickup Time</label>
+        <input type="time" class="form-control">
+      </div>
+      <button class="btn btn-primary" onclick="submitDonation()">Submit</button>
+    </div>
+  </div>
+
+  <script>
+    const modal = document.getElementById('donationModal');
+    function openModal() { modal.style.display = 'flex'; }
+    function closeModal() { modal.style.display = 'none'; }
+    function submitDonation() {
+      alert('Donation submitted successfully!');
+      closeModal();
+    }
+  </script>
+</body>
+</html>
